@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>apsi - Download Center</title>
+    <style>
+        body { background: #fff; color: #000; font-family: Arial, sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        .box { width: 100%; border: 1px solid #000; padding: 10px; box-sizing: border-box; transition: opacity 0.4s; }
+        .top-bar { border-bottom: 2px solid #000; margin-bottom: 15px; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 22px; margin: 0; }
+        .lang-list { display: flex; gap: 5px; flex-wrap: wrap; }
+        .lang-btn { padding: 5px 10px; border: 1px solid #777; background: #eee; cursor: pointer; font-size: 14px; font-weight: bold; }
+        .lang-btn.active { background: #000; color: #fff; border-color: #000; }
+        .section-title { font-weight: bold; background: #eee; padding: 8px; margin: 20px 0 10px 0; border: 1px solid #ccc; font-size: 16px; }
+        .btn { display: block; background: linear-gradient(to bottom, #fff, #e1e1e1); border: 1px solid #777; padding: 15px; margin-bottom: 10px; text-align: left; text-decoration: none; color: #000; font-weight: bold; font-size: 16px; position: relative; cursor: pointer; }
+        .btn:active { background: #ccc; }
+        .btn-zip { background: #fff9c4; }
+        input { width: 100%; max-width: 400px; padding: 12px; margin-bottom: 10px; border: 1px solid #999; box-sizing: border-box; font-size: 16px; display: block; }
+        #error-page { display: none; text-align: center; padding-top: 50px; opacity: 0; transition: opacity 0.5s; }
+        .error-num { font-size: 100px; font-weight: bold; margin: 0; line-height: 1; }
+        .lion {
+            width: 140px; height: 140px; background: #f4a460; margin: 30px auto;
+            border-radius: 50% 50% 45% 45%; position: relative; border: 4px solid #000;
+            animation: roar 1.2s infinite ease-in-out;
+        }
+        .lion::after {
+            content: ''; position: absolute; top: -15px; left: -15px;
+            width: 170px; height: 170px; border-radius: 50%;
+            box-shadow: 0 0 0 12px #8b4513; z-index: -1;
+        }
+        .lion-eye { width: 12px; height: 12px; background: #000; border-radius: 50%; position: absolute; top: 45px; }
+        .eye-l { left: 35px; } .eye-r { right: 35px; }
+        .lion-nose { width: 18px; height: 12px; background: #333; position: absolute; top: 75px; left: 61px; border-radius: 4px; }
+        .lion-mouth { 
+            width: 36px; height: 18px; border: 3px solid #000; border-top: none; 
+            border-radius: 0 0 18px 18px; position: absolute; top: 95px; left: 52px; background: #600; 
+        }
+        @keyframes roar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 15px #f4a460); }
+        }
+        .back-btn { display: inline-block; margin-top: 30px; padding: 12px 25px; border: 2px solid #000; background: #000; color: #fff; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<div id="main-content" class="box">
+    <div class="top-bar">
+        <h1>bypassrestrict</h1>
+        <div class="lang-list">
+            <div class="lang-btn active" onclick="setLang('ru', this)">RU</div>
+            <div class="lang-btn" onclick="setLang('en', this)">EN</div>
+            <div class="lang-btn" onclick="setLang('es', this)">ES</div>
+            <div class="lang-btn" onclick="setLang('zh', this)">ZH</div>
+        </div>
+    </div>
+    
+    <input type="text" id="url-check" placeholder="FeedBack">
+
+    <div class="section-title" data-key="win">Windows версии</div>
+    <a href="plex.exe" class="btn" data-key="plex">Скачать с плагинами</a>
+    <a href="npex.exe" class="btn" data-key="npex">Скачать без плагинов</a>
+    <a href="ex.exe" class="btn" data-key="ex">Легкая версия</a>
+
+    <div class="section-title" data-key="lin">Linux версии</div>
+    <a href="code.sh" class="btn" data-key="lin_btn">Для Linux</a>
+    <a href="codepl.sh" class="btn" data-key="lin_pl">Для Linux + плагины</a>
+
+    <div class="section-title" data-key="dev">Разработка</div>
+    <a href="code.zip" class="btn btn-zip" data-key="code">Исходный код (code.zip)</a>
+</div>
+
+<div id="error-page">
+    <p class="error-num">404</p>
+    <div class="lion">
+        <div class="lion-eye eye-l"></div>
+        <div class="lion-eye eye-r"></div>
+        <div class="lion-nose"></div>
+        <div class="lion-mouth"></div>
+    </div>
+    <h2 data-key="err_msg">Упс! Лев съел этот файл...</h2>
+    <div class="back-btn" onclick="showMain()" data-key="back">Вернуться назад</div>
+</div>
+
+<script>
+    const langData = {
+        ru: {
+            win: "Windows версии", plex: "Скачать с плагинами", npex: "Скачать без плагинов", ex: "Легкая версия",
+            lin: "Linux версии", lin_btn: "Для Linux", lin_pl: "Для Linux + плагины", dev: "Разработка", code: "Исходный код (code.zip)",
+            err_msg: "Упс! Лев съел этот файл...", back: "Вернуться назад"
+        },
+        en: {
+            win: "Windows versions", plex: "Download with plugins", npex: "Download without plugins", ex: "Light version",
+            lin: "Linux versions", lin_btn: "For Linux", lin_pl: "For Linux + plugins", dev: "Development", code: "Source code (code.zip)",
+            err_msg: "Oops! The lion ate this file...", back: "Go Back"
+        },
+        es: {
+            win: "Versiones de Windows", plex: "Descargar con complementos", npex: "Descargar sin complementos", ex: "Versión ligera",
+            lin: "Versiones de Linux", lin_btn: "Para Linux", lin_pl: "Para Linux + complementos", dev: "Desarrollo", code: "Código fuente (code.zip)",
+            err_msg: "¡Vaya! El león se comió este archivo...", back: "Volver atrás"
+        },
+        zh: {
+            win: "Windows 版本", plex: "带插件下载", npex: "不带插件下载", ex: "精简版",
+            lin: "Linux 版本", lin_btn: "Linux 版", lin_pl: "Linux 版 + 插件", dev: "开发", code: "源代码 (code.zip)",
+            err_msg: "哎呀！狮子把这个文件吃了...", back: "返回"
+        }
+    };
+
+    function setLang(lang, el) {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        const strings = langData[lang];
+        document.querySelectorAll('[data-key]').forEach(item => {
+            const key = item.getAttribute('data-key');
+            if (strings[key]) item.innerText = strings[key];
+        });
+    }
+
+    async function checkAndDownload(e) {
+        e.preventDefault();
+        const url = e.currentTarget.getAttribute('href');
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (response.ok) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = ''; 
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                show404();
+            }
+        } catch (error) {
+            show404();
+        }
+    }
+
+    function show404() {
+        const main = document.getElementById('main-content');
+        const err = document.getElementById('error-page');
+        main.style.opacity = '0';
+        setTimeout(() => {
+            main.style.display = 'none';
+            err.style.display = 'block';
+            setTimeout(() => err.style.opacity = '1', 50);
+        }, 400);
+    }
+
+    function showMain() {
+        const main = document.getElementById('main-content');
+        const err = document.getElementById('error-page');
+        err.style.opacity = '0';
+        setTimeout(() => {
+            err.style.display = 'none';
+            main.style.display = 'block';
+            setTimeout(() => main.style.opacity = '1', 50);
+        }, 400);
+    }
+
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', checkAndDownload);
+    });
+</script>
+
+</body>
+</html>
